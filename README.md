@@ -1,10 +1,13 @@
-|	NRP 	|  	Name  	|
-| :--------: | :------------: |
-| 5025241055 | Pradhipta Raja Mahendra |
-| 5025241072 | Arya Rangga |
-| 5025241090 | Hajendra Herlambang |
-| 5025241098 | Bramantya Saputra |
-| 5025241099 | Rendy Tanuwijaya |
+# Tugas-program-komnum-Roulette
+# 📐 Integrasi Numerik Metode Trapesium (Trapesium Segmen Berganda)
+
+| Data       | Keterangan              |
+|------------|-------------------------|
+| **Nama**   | Bramantya Saputra|
+| **NRP**    | 5025241098              |
+| **Kelas**  | Komnum A                |
+| **Kelompok** | A-16                   |
+| **Soal**   | Nomor 40                |  
 
 Sesuai dengan soal nomor 40, ini adalah laporan hasil pengerjaan saya yang berisi implementasi Python untuk menghitung luas di bawah kurva fungsi menggunakan **metode trapesium segmen berganda**, serta membandingkannya dengan hasil integral eksak menggunakan `sympy`.
 
