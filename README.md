@@ -6,78 +6,211 @@
 | 5025241098 | Bramantya Saputra |
 | 5025241099 | Rendy Tanuwijaya |
 
-# Final Praktikum Komputrasi Numerik
+Sesuai dengan soal nomor 40, ini adalah laporan hasil pengerjaan saya yang berisi implementasi Python untuk menghitung luas di bawah kurva fungsi menggunakan **metode trapesium segmen berganda**, serta membandingkannya dengan hasil integral eksak menggunakan `sympy`.
 
-### Integrasi Numerik dengan Aturan Trapesium Segmen Berganda
+---
 
-Skrip Python ini menghitung luas area di bawah kurva fungsi f(x)=3x^5−8x^4
+## 📘 Deskripsi Fungsi
 
-Skrip ini menggunakan dua cara:
+Fungsi yang digunakan:
 
-Metode Numerik: Menggunakan Aturan Trapesium Segmen Berganda.
-Metode Eksak: Menggunakan library sympy untuk perhitungan analitis (tepat).
+\$f(x) = 3x^5 - 8x^4\$
 
-Kita ingin mencari luas di bawah kurva tersebut.
+* Batas integral: \$a = 4,\ b = 16\$
+* Jumlah segmen: \$n = 4\$
 
-**Membagi Area Menjadi Segmen (Trapesium):**
+---
 
-Logika utama dari Aturan Trapesium Segmen Berganda adalah membagi area di bawah kurva menjadi beberapa "trapesium" kecil.
-Dalam kode ini, kita menentukan n_segments (jumlah segmen). Misalnya, jika n_segments = 4, maka rentang integral (dari 4 sampai 16) akan dibagi menjadi 4 bagian yang sama besar.
-Menentukan Lebar Setiap Segmen (h):
+## 📐 Rumus Metode Trapesium
 
-**Lebar setiap segmen trapesium (h)** 
+$$
+L = h \left( \frac{f(x_0)}{2} + f(x_1) + f(x_2) + \dots + f(x_{n-1}) + \frac{f(x_n)}{2} \right)
+$$
 
-dihitung dengan rumus: (batas_atas - batas_bawah) / jumlah_segmen.
-Dalam kasus ini, h = (16 - 4) / 4 = 3. Ini berarti setiap trapesium memiliki lebar 3 unit pada sumbu x.
-Menentukan Titik-titik (x_points) dan Nilai Fungsi (y_points):
+Dengan:
 
-Kita perlu tahu di mana "pilar-pilar" trapesium itu berada. Ini adalah x_points (misalnya 4, 7, 10, 13, 16 untuk 4 segmen). np.linspace digunakan untuk membuat titik-titik ini secara otomatis.
-Kemudian, untuk setiap x_points tersebut, kita menghitung nilai fungsi f(x)-nya. Ini adalah tinggi "pilar" trapesium (y_points atau f(x)).
-Menghitung Luas Setiap Trapesium:
+* \$h = \frac{b - a}{n}\$
+* \$x\_0, x\_1, ..., x\_n\$ adalah titik partisi dari interval $\[a, b]\$
 
-**Rumus luas trapesium adalah 0.5 * (tinggi_1 + tinggi_2) * lebar.**
+---
 
-Dalam konteks ini, tinggi_1 dan tinggi_2 adalah nilai f(x) pada dua titik x yang berurutan (misalnya f(4) dan f(7) untuk trapesium pertama). lebar adalah h.
-Menjumlahkan Luas Semua Trapesium:
+## 📦 Modul yang Digunakan
 
-Aturan Trapesium Segmen Berganda menggabungkan ini dengan rumus yang lebih efisien: Luas = h * [0.5 * f(x_pertama) + 0.5 * f(x_terakhir) + jumlah_f(x_di_tengah)].
-f(x_pertama) adalah y_points[0].
-f(x_terakhir) adalah y_points[-1].
-jumlah_f(x_di_tengah) adalah np.sum(y_points[1:-1]) yang menjumlahkan semua y_points kecuali yang pertama dan terakhir.
-Logika ini bekerja karena titik-titik di tengah (selain yang pertama dan terakhir) menjadi bagian dari dua trapesium yang berdekatan, sehingga kontribusinya dikalikan dua dalam rumus keseluruhan.
-
-Jalankan kode: Simpan kode sebagai A16_ProgramKomnum_40.py dan jalankan dari terminal:
-
-```Bash
-python A16_ProgramKomnum_40.py
+```python
+import numpy as np
+import sympy as sp
 ```
 
-# Contoh Output:
+* `numpy (np)` : untuk operasi numerik seperti array dan linspace.
+* `sympy (sp)` : untuk menghitung integral eksak secara simbolik.
 
+---
+
+## 🧩 Kelas: TrapeziumIntegrator
+
+### 🔧 `__init__(self, func, a, b)`
+
+Inisialisasi objek integrator. Parameter:
+
+* `func`: fungsi f(x) yang akan diintegralkan
+* `a`: batas bawah integral
+* `b`: batas atas integral
+
+```python
+def __init__(self, func, a, b):
+    self.func = func
+    self.a = a
+    self.b = b
+```
+
+Penjelasan:
+
+* `self`: referensi ke objek itu sendiri (wajib di method OOP Python).
+* `self.func`, `self.a`, dan `self.b` menyimpan data ke dalam atribut kelas.
+
+---
+
+### 📍 `evaluate_function(self, x_points)`
+
+Evaluasi nilai fungsi untuk setiap titik \$x\_i\$ dalam array `x_points`.
+
+```python
+def evaluate_function(self, x_points):
+    return np.array([self.func(x) for x in x_points])
+```
+
+Penjelasan:
+
+* `x_points`: array titik x yang sudah dibagi.
+* `self.func(x)`: memanggil fungsi f(x) untuk setiap x.
+* Output: array nilai f(x).
+
+---
+
+### 📐 `calculate_integral(self, n_segments)`
+
+Menghitung luas menggunakan metode trapesium segmen berganda.
+
+```python
+def calculate_integral(self, n_segments):
+    h = (self.b - self.a) / n_segments
+    x_points = np.linspace(self.a, self.b, n_segments + 1)
+    y_points = self.evaluate_function(x_points)
+    luas = h * (0.5 * y_points[0] + 0.5 * y_points[-1] + np.sum(y_points[1:-1]))
+    return x_points, y_points, round(luas, 2)
+```
+
+Penjelasan:
+
+* `h`: panjang setiap segmen.
+* `x_points`: titik-titik pembagi dari a ke b.
+* `y_points`: hasil f(x) dari tiap titik.
+* `luas`: hasil perhitungan rumus trapesium.
+
+---
+
+### 🎯 `calculate_true_integral(self)`
+
+Menghitung nilai eksak dari integral menggunakan SymPy.
+
+```python
+def calculate_true_integral(self):
+    x = sp.Symbol('x')
+    true_integral = sp.integrate(self.func(x), (x, self.a, self.b))
+    return float(true_integral.evalf())
+```
+
+Penjelasan:
+
+* `sp.Symbol('x')`: mendefinisikan variabel simbolik.
+* `sp.integrate`: menghitung integral tak tentu/tertentu.
+* `evalf()`: konversi ke bentuk float.
+
+---
+
+### 📉 `calculate_error(self, luas_numerik, luas_eksak)`
+
+Menghitung galat relatif antara hasil numerik dan eksak.
+
+```python
+def calculate_error(self, luas_numerik, luas_eksak):
+    error = abs((luas_eksak - luas_numerik) / luas_eksak) * 100
+    return round(error, 2)
+```
+
+Penjelasan:
+
+* Formula: \$\text{Error} = \left| \frac{I\_{eksak} - I\_{numerik}}{I\_{eksak}} \right| \times 100\$.
+* Hasil dibulatkan dua desimal.
+
+---
+
+## 🚀 Fungsi Main
+
+```python
+def main():
+    def f(x):
+        return 3 * x**5 - 8 * x**4
+
+    a, b = 4, 16
+    n_segments = 4
+
+    integrator = TrapeziumIntegrator(f, a, b)
+    x_points, y_points, luas_numerik = integrator.calculate_integral(n_segments)
+    luas_eksak = integrator.calculate_true_integral()
+    error = integrator.calculate_error(luas_numerik, luas_eksak)
+
+    print("=== Langkah 1: Evaluasi Fungsi ===")
+    for x, y in zip(x_points, y_points):
+        print(f"f({int(x)}) = {round(y, 2)}")
+
+    print("\n=== Langkah 2: Hitung Luas (Trapesium) ===")
+    print(f"h = (16-4)/4 = 3")
+    print(f"Luas = 3 * [0.5*f(4) + 0.5*f(16) + f(7) + f(10) + f(13)]")
+    print(f"      = {luas_numerik}")
+
+    print("\n=== Langkah 3: Hitung Error ===")
+    print(f"Luas Eksak (Sympy) = {round(luas_eksak, 2)}")
+    print(f"Error (%) = |({round(luas_eksak, 2)} - {luas_numerik}) / {round(luas_eksak, 2)}| * 100 = {error}%")
+```
+
+### Penjelasan Fungsi `main()`:
+
+* `def f(x)`: Mendefinisikan fungsi matematika \$f(x) = 3x^5 - 8x^4\$.
+* `a, b = 4, 16`: Menentukan batas bawah dan atas integral.
+* `n_segments = 4`: Menentukan jumlah segmen untuk metode trapesium.
+* `integrator = TrapeziumIntegrator(f, a, b)`: Membuat objek dari kelas `TrapeziumIntegrator`.
+* `calculate_integral`: Menghitung nilai luas secara numerik.
+* `calculate_true_integral`: Menghitung nilai eksak menggunakan integral simbolik.
+* `calculate_error`: Menghitung galat/error antara hasil numerik dan eksak.
+* `print(...)`: Mencetak semua langkah dan hasil ke terminal sesuai urutan pengerjaan.
+
+---
+
+## 📊 Contoh Output
+
+```
 === Langkah 1: Evaluasi Fungsi ===
-
-f(4) = -512.0
-
-f(7) = 39207.0
-
+f(4) = 1024.0
+f(7) = 31213.0
 f(10) = 220000.0
-
-f(13) = 878179.0
-
+f(13) = 885391.0
 f(16) = 2621440.0
 
-
-=== Langkah 2: Hitung Luas (Trapezium) ===
-
+=== Langkah 2: Hitung Luas (Trapesium) ===
 h = (16-4)/4 = 3
-
 Luas = 3 * [0.5*f(4) + 0.5*f(16) + f(7) + f(10) + f(13)]
-     = 3 * [0.5*-512.0 + 0.5*2621440.0 + 39207.0 + 220000.0 + 878179.0]  
-     = 6003780.0
-
+      = 7343508.0
 
 === Langkah 3: Hitung Error ===
+Luas Eksak (Sympy) = 6710476.8
+Error (%) = |(6710476.8 - 7343508.0) / 6710476.8| * 100 = 9.43%
+```
 
-Luas Eksak (Sympy) = 6003648.0
+---
 
-Error (%) = |(6003648.0 - 6003780.0) / 6003648.0| * 100 = 0.00%
+## 📘 Catatan Akhir
+
+* Program ini sesuai dengan soal nomor 40 kelas Komnum A Menggunakan library seperti numpy dan sympy.
+* Dapat dimodifikasi untuk jumlah segmen yang lebih banyak atau fungsi yang berbeda.
+* Mencakup seluruh proses perhitungan dan analisis galat.
